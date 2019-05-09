@@ -17,7 +17,7 @@
       em_pass: "{{ email.pass }}"
       em_port: "{{ email.port }}"
       em_security: "{{ email.security }}"
-      em_smtp: "{{ email.smtp }}"
+      em_smtp: "{{ email.smtp_auth }}"
       em_user: "{{ email.user }}"
     body_format: json
   when: (email_settings.json.em_fromemail != email.fromemail) or
@@ -25,5 +25,5 @@
         (email_settings.json.em_pass != email.pass) or
         (email_settings.json.em_port != email.port) or
         (email_settings.json.em_security != email.security) or
-        (email_settings.json.em_smtp != email.smtp) or
+        (email_settings.json.em_smtp != email.smtp_auth) or
         (email_settings.json.em_user != email.user)
