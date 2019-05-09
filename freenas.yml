@@ -1,0 +1,8 @@
+- name: Configure FreeNAS appliances
+  hosts: freenas
+  connection: local
+  tasks:
+    - include: email.yml
+    - include: users.yml
+    - include: services.yml
+    - include: smart.yml

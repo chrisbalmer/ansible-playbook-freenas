@@ -1,0 +1,20 @@
+- name: Check service status
+  uri:
+    url: "http://{{ ansible_host }}{{ api.services }}{{ item }}/"
+    user: "{{ ansible_ssh_user }}"
+    password: "{{ ansible_ssh_pass }}"
+  register: services_result
+  with_items: "{{ services }}"
+
+- name: Set service status
+  uri:
+    url: "http://{{ ansible_host }}{{ api.services }}{{ item.item }}/"
+    method: PUT
+    user: "{{ ansible_ssh_user }}"
+    password: "{{ ansible_ssh_pass }}"
+    body:
+      srv_enable: "{{ services[item.item] }}"
+    body_format: json
+  when: item.json.srv_enable != services[item.item]
+  with_items: "{{ services_result.results }}"
+  
