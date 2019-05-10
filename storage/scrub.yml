@@ -6,6 +6,11 @@
     password: "{{ ansible_ssh_pass }}"
   register: storage_scrub_settings
 
+- name: Check scrub counts
+  set_fact:
+    scrubs_dirty: true
+  when: (storage.scrubs|length != storage_scrub_settings.json|length)
+
 - name: Check scrub settings
   set_fact:
     scrubs_dirty: true
@@ -35,6 +40,7 @@
     url: "http://{{ ansible_host }}{{ api.storage_volume }}"
     user: "{{ ansible_ssh_user }}"
     password: "{{ ansible_ssh_pass }}"
+  when: scrubs_dirty is defined
   register: storage_volumes
 
 - name: Set scrub settings
@@ -56,8 +62,7 @@
     body_format: json
     status_code: 201
   with_items: "{{ storage.scrubs }}"
-  when: scrubs_dirty is defined or
-        storage.scrubs|length > storage_scrub_settings.json|length
+  when: scrubs_dirty is defined
 
 
 
