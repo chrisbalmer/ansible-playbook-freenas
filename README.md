@@ -59,3 +59,26 @@ users:
         email: chris@example.com
 ```
 The root email address should be set so that you get important emails from the systems. [FreeNAS Documentation](https://www.ixsystems.com/documentation/freenas/11.2-U4/accounts.html#users)
+
+```yaml
+network:
+  nameserver1: 172.21.14.2
+  nameserver2: 172.21.14.4
+  nameserver3: 172.21.7.5
+```
+These are the DNS servers to use for the system.
+
+```yaml
+storage:
+  scrubs:
+    - daymonth: "*"
+      dayweek: "7"
+      description: ""
+      enabled: true
+      hour: "02"
+      minute: "00"
+      month: "*"
+      threshold: 6
+      volume: "POOL_A"
+```
+This is a list of scrubs configured for your volumes (pools). This does not include the boot volume.

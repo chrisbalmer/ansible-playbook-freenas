@@ -1,0 +1,71 @@
+---
+- name: Get scrub settings
+  uri:
+    url: "http://{{ ansible_host }}{{ api.storage_scrub }}"
+    user: "{{ ansible_ssh_user }}"
+    password: "{{ ansible_ssh_pass }}"
+  register: storage_scrub_settings
+
+- name: Check scrub settings
+  set_fact:
+    scrubs_dirty: true
+  loop: "{{ storage_scrub_settings.json|zip(storage.scrubs)|list }}"
+  when: (item.0.scrub_daymonth != item.1.daymonth) or
+        (item.0.scrub_dayweek != item.1.dayweek) or
+        (item.0.scrub_description != item.1.description) or
+        (item.0.scrub_enabled != item.1.enabled) or
+        (item.0.scrub_hour != item.1.hour) or
+        (item.0.scrub_minute != item.1.minute) or
+        (item.0.scrub_month != item.1.month) or
+        (item.0.scrub_threshold != item.1.threshold) or
+        (item.0.scrub_volume != item.1.volume)
+
+- name: Clear scrub settings
+  uri:
+    url: "http://{{ ansible_host }}{{ api.storage_scrub }}{{ item.id }}/"
+    method: DELETE
+    user: "{{ ansible_ssh_user }}"
+    password: "{{ ansible_ssh_pass }}"
+    status_code: 204
+  with_items: "{{ storage_scrub_settings.json }}"
+  when: scrubs_dirty is defined
+
+- name: Get volume ids to map with scrubs
+  uri:
+    url: "http://{{ ansible_host }}{{ api.storage_volume }}"
+    user: "{{ ansible_ssh_user }}"
+    password: "{{ ansible_ssh_pass }}"
+  register: storage_volumes
+
+- name: Set scrub settings
+  uri:
+    url: "http://{{ ansible_host }}{{ api.storage_scrub }}"
+    method: POST
+    user: "{{ ansible_ssh_user }}"
+    password: "{{ ansible_ssh_pass }}"
+    body:
+      scrub_daymonth: "{{ item.daymonth }}"
+      scrub_dayweek: "{{ item.dayweek }}"
+      scrub_description: "{{ item.description }}"
+      scrub_enabled: "{{ item.enabled }}"
+      scrub_hour: "{{ item.hour }}"
+      scrub_minute: "{{ item.minute }}"
+      scrub_month: "{{ item.month }}"
+      scrub_threshold: "{{ item.threshold }}"
+      scrub_volume: "{{ (storage_volumes.json | selectattr('name', 'equalto', item.volume) | list | first).id }}"
+    body_format: json
+    status_code: 201
+  with_items: "{{ storage.scrubs }}"
+  when: scrubs_dirty is defined or
+        storage.scrubs|length > storage_scrub_settings.json|length
+
+
+
+
+
+
+
+
+
+
+

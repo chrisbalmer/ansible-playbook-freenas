@@ -1,0 +1,22 @@
+---
+- name: Get global network settings
+  uri:
+    url: "http://{{ ansible_host }}{{ api.network_global }}"
+    user: "{{ ansible_ssh_user }}"
+    password: "{{ ansible_ssh_pass }}"
+  register: network_global_settings
+
+- name: Set global network settings
+  uri:
+    url: "http://{{ ansible_host }}{{ api.network_global }}"
+    method: PUT
+    user: "{{ ansible_ssh_user }}"
+    password: "{{ ansible_ssh_pass }}"
+    body:
+      gc_nameserver1: "{{ network.nameserver1 }}"
+      gc_nameserver2: "{{ network.nameserver2 }}"
+      gc_nameserver3: "{{ network.nameserver3 }}"
+    body_format: json
+  when: (network_global_settings.json.gc_nameserver1 != network.nameserver1) or
+        (network_global_settings.json.gc_nameserver2 != network.nameserver2) or
+        (network_global_settings.json.gc_nameserver3 != network.nameserver3)
