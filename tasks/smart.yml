@@ -1,0 +1,83 @@
+---
+- name: Get scrub settings
+  uri:
+    url: "http://{{ ansible_host }}{{ api.tasks_smart }}"
+    user: "{{ ansible_ssh_user }}"
+    password: "{{ ansible_ssh_pass }}"
+  register: tasks_smart_settings
+
+- name: Get disks
+  uri:
+    url: "http://{{ ansible_host }}{{ api.storage_disk }}"
+    user: "{{ ansible_ssh_user }}"
+    password: "{{ ansible_ssh_pass }}"
+  register: storage_disks
+
+- name: Find disks greater than min disk size
+  set_fact:
+    smart_disk_count: "{{ ((smart_disk_count | default(0)) | int) + 1}}"
+    smart_disk_disks: "{{ (smart_disk_disks | default([])) + [ item.disk_identifier ] }}"
+  when: item.disk_size | int >= tasks.smart_min_disk_size
+  with_items: "{{ storage_disks.json }}"
+
+- name: Check set test count with actual test count
+  set_fact:
+    smart_dirty: true
+  when: (tasks.smart | length != tasks_smart_settings.json | length)
+
+- name: Check disk counts in SMART tests
+  set_fact:
+    smart_dirty: true
+  when: (item.smarttest_disks | length != (smart_disk_count | int))
+  with_items: "{{ tasks_smart_settings.json }}"
+
+- name: Check SMART test settings
+  set_fact:
+    smart_dirty: true
+  loop: "{{ tasks_smart_settings.json|zip(tasks.smart)|list }}"
+  when: (item.0.smarttest_daymonth != item.1.daymonth) or
+        (item.0.smarttest_dayweek != item.1.dayweek) or
+        (item.0.smarttest_desc != item.1.desc) or
+        (item.0.smarttest_hour != item.1.hour) or
+        (item.0.smarttest_month != item.1.month) or
+        (item.0.smarttest_type != item.1.type)
+
+- name: Clear SMART test settings
+  uri:
+    url: "http://{{ ansible_host }}{{ api.tasks_smart }}{{ item.id }}/"
+    method: DELETE
+    user: "{{ ansible_ssh_user }}"
+    password: "{{ ansible_ssh_pass }}"
+    status_code: 204
+  with_items: "{{ tasks_smart_settings.json }}"
+  when: smart_dirty is defined
+
+- name: Set SMART test settings
+  uri:
+    url: "http://{{ ansible_host }}{{ api.tasks_smart }}"
+    method: POST
+    user: "{{ ansible_ssh_user }}"
+    password: "{{ ansible_ssh_pass }}"
+    body:
+      smarttest_daymonth: "{{ item.daymonth }}"
+      smarttest_dayweek: "{{ item.dayweek }}"
+      smarttest_desc: "{{ item.desc }}"
+      smarttest_hour: "{{ item.hour }}"
+      smarttest_month: "{{ item.month }}"
+      smarttest_type: "{{ item.type }}"
+      smarttest_disks: "{{ smart_disk_disks }}"
+    body_format: json
+    status_code: 201
+  with_items: "{{ tasks.smart }}"
+  when: smart_dirty is defined
+
+
+
+
+
+
+
+
+
+
+

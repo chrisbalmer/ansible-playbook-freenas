@@ -8,3 +8,4 @@
     - include: users.yml
     - include: services.yml
     - include: smart.yml
+    - include: tasks/smart.yml
