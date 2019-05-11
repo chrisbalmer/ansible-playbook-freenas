@@ -51,6 +51,24 @@ smart_service:
 ```
 This is the SMART hard drive service (`smartd`). [FreeNAS Documentation](https://www.ixsystems.com/documentation/freenas/11.2-U4/services.html#s-m-a-r-t)
 
+```yaml
+    tasks:
+      smart_min_disk_size: 1099511627776
+      smart:
+        - daymonth: "01,15"
+          dayweek: "1,2,3,4,5,6"
+          desc: ""
+          hour: "02"
+          month: "1,2,3,4,5,6,7,8,9,10,11,12"
+          type: "L"
+        - daymonth: "*"
+          dayweek: "7"
+          desc: ""
+          hour: "00"
+          month: "1,2,3,4,5,6,7,8,9,10,11,12"
+          type: "S"
+```
+These are the SMART test tasks to run. All drives except those smaller than the `smart_min_disk_size` are added to each SMART test. This avoids running the SMART tests on USB drives which may not support SMART.[FreeNAS Documentation](https://www.ixsystems.com/documentation/freenas/11.2/tasks.html#s-m-a-r-t-tests)
 
 ```yaml
 users:
