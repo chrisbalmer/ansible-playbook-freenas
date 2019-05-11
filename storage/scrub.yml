@@ -1,17 +1,17 @@
 ---
-- name: Get scrub settings
+- name: storage/scrub Get scrub settings
   uri:
     url: "http://{{ ansible_host }}{{ api.storage_scrub }}"
     user: "{{ ansible_ssh_user }}"
     password: "{{ ansible_ssh_pass }}"
   register: storage_scrub_settings
 
-- name: Check scrub counts
+- name: storage/scrub Check scrub counts
   set_fact:
     scrubs_dirty: true
   when: (storage.scrubs|length != storage_scrub_settings.json|length)
 
-- name: Check scrub settings
+- name: storage/scrub Check scrub settings
   set_fact:
     scrubs_dirty: true
   loop: "{{ storage_scrub_settings.json|zip(storage.scrubs)|list }}"
@@ -25,7 +25,7 @@
         (item.0.scrub_threshold != item.1.threshold) or
         (item.0.scrub_volume != item.1.volume)
 
-- name: Clear scrub settings
+- name: storage/scrub Clear scrub settings
   uri:
     url: "http://{{ ansible_host }}{{ api.storage_scrub }}{{ item.id }}/"
     method: DELETE
@@ -35,7 +35,7 @@
   with_items: "{{ storage_scrub_settings.json }}"
   when: scrubs_dirty is defined
 
-- name: Get volume ids to map with scrubs
+- name: storage/scrub Get volume ids to map with scrubs
   uri:
     url: "http://{{ ansible_host }}{{ api.storage_volume }}"
     user: "{{ ansible_ssh_user }}"
@@ -43,7 +43,7 @@
   when: scrubs_dirty is defined
   register: storage_volumes
 
-- name: Set scrub settings
+- name: storage/scrub Set scrub settings
   uri:
     url: "http://{{ ansible_host }}{{ api.storage_scrub }}"
     method: POST

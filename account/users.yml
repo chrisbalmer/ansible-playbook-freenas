@@ -1,11 +1,11 @@
-- name: Get root user
+- name: account/users Get root user
   uri:
     url: "http://{{ ansible_host }}{{ api.users }}{{ users.root.id }}/"
     user: "{{ ansible_ssh_user }}"
     password: "{{ ansible_ssh_pass }}"
   register: root_user
 
-- name: Set root account email address
+- name: account/users Set root account email address
   uri:
     url: "http://{{ ansible_host }}{{ api.users }}{{ users.root.id }}/"
     method: PUT

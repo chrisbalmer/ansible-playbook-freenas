@@ -1,11 +1,11 @@
-- name: Check SMART service settings
+- name: services/smart Check SMART service settings
   uri:
     url: "http://{{ ansible_host }}{{ api.smart_service_settings }}"
     user: "{{ ansible_ssh_user }}"
     password: "{{ ansible_ssh_pass }}"
   register: smart_result
 
-- name: Set SMART service settings
+- name: services/smart Set SMART service settings
   uri:
     url: "http://{{ ansible_host }}{{ api.smart_service_settings }}"
     method: PUT

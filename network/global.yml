@@ -1,12 +1,12 @@
 ---
-- name: Get global network settings
+- name: network/global Get global network settings
   uri:
     url: "http://{{ ansible_host }}{{ api.network_global }}"
     user: "{{ ansible_ssh_user }}"
     password: "{{ ansible_ssh_pass }}"
   register: network_global_settings
 
-- name: Set global network settings
+- name: network/global Set global network settings
   uri:
     url: "http://{{ ansible_host }}{{ api.network_global }}"
     method: PUT

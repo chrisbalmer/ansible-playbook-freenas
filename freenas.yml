@@ -2,10 +2,10 @@
   hosts: freenas
   connection: local
   tasks:
-    - include: storage/scrub.yml
+    - include: account/users.yml
     - include: network/global.yml
-    - include: email.yml
-    - include: users.yml
-    - include: services.yml
-    - include: smart.yml
+    - include: system/email.yml
+    - include: services/services.yml
+    - include: services/smart.yml
+    - include: storage/scrub.yml
     - include: tasks/smart.yml

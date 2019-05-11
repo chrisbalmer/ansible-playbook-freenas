@@ -1,37 +1,37 @@
 ---
-- name: Get scrub settings
+- name: tasks/smart Get scrub settings
   uri:
     url: "http://{{ ansible_host }}{{ api.tasks_smart }}"
     user: "{{ ansible_ssh_user }}"
     password: "{{ ansible_ssh_pass }}"
   register: tasks_smart_settings
 
-- name: Get disks
+- name: tasks/smart Get disks
   uri:
     url: "http://{{ ansible_host }}{{ api.storage_disk }}"
     user: "{{ ansible_ssh_user }}"
     password: "{{ ansible_ssh_pass }}"
   register: storage_disks
 
-- name: Find disks greater than min disk size
+- name: tasks/smart Find disks greater than min disk size
   set_fact:
     smart_disk_count: "{{ ((smart_disk_count | default(0)) | int) + 1}}"
     smart_disk_disks: "{{ (smart_disk_disks | default([])) + [ item.disk_identifier ] }}"
   when: item.disk_size | int >= tasks.smart_min_disk_size
   with_items: "{{ storage_disks.json }}"
 
-- name: Check set test count with actual test count
+- name: tasks/smart Check set test count with actual test count
   set_fact:
     smart_dirty: true
   when: (tasks.smart | length != tasks_smart_settings.json | length)
 
-- name: Check disk counts in SMART tests
+- name: tasks/smart Check disk counts in SMART tests
   set_fact:
     smart_dirty: true
   when: (item.smarttest_disks | length != (smart_disk_count | int))
   with_items: "{{ tasks_smart_settings.json }}"
 
-- name: Check SMART test settings
+- name: tasks/smart Check SMART test settings
   set_fact:
     smart_dirty: true
   loop: "{{ tasks_smart_settings.json|zip(tasks.smart)|list }}"
@@ -42,7 +42,7 @@
         (item.0.smarttest_month != item.1.month) or
         (item.0.smarttest_type != item.1.type)
 
-- name: Clear SMART test settings
+- name: tasks/smart Clear SMART test settings
   uri:
     url: "http://{{ ansible_host }}{{ api.tasks_smart }}{{ item.id }}/"
     method: DELETE
@@ -52,7 +52,7 @@
   with_items: "{{ tasks_smart_settings.json }}"
   when: smart_dirty is defined
 
-- name: Set SMART test settings
+- name: tasks/smart Set SMART test settings
   uri:
     url: "http://{{ ansible_host }}{{ api.tasks_smart }}"
     method: POST

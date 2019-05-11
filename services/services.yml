@@ -1,4 +1,4 @@
-- name: Check service status
+- name: services/services Check service status
   uri:
     url: "http://{{ ansible_host }}{{ api.services }}{{ item }}/"
     user: "{{ ansible_ssh_user }}"
@@ -6,7 +6,7 @@
   register: services_result
   with_items: "{{ services }}"
 
-- name: Set service status
+- name: services/services Set service status
   uri:
     url: "http://{{ ansible_host }}{{ api.services }}{{ item.item }}/"
     method: PUT

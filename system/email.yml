@@ -1,11 +1,11 @@
-- name: Get SMTP server settings
+- name: system/email Get SMTP server settings
   uri:
     url: "http://{{ ansible_host }}{{ api.email }}"
     user: "{{ ansible_ssh_user }}"
     password: "{{ ansible_ssh_pass }}"
   register: email_settings
 
-- name: Set SMTP server settings
+- name: system/email Set SMTP server settings
   uri:
     url: "http://{{ ansible_host }}{{ api.email }}"
     method: PUT
